@@ -14,6 +14,9 @@ importers:
       '@electron-toolkit/utils':
         specifier: ^4.0.0
         version: 4.0.0(electron@39.2.7)
+      electron-callback-rpc:
+        specifier: ../
+        version: link:..
     devDependencies:
       '@electron-toolkit/eslint-config-prettier':
         specifier: 3.0.0

@@ -1,9 +1,6 @@
 const { Client } = require("../dist/electron.renderer");
-const { asProxyService, createProxyService } = require("../dist/proxy");
-const ProxyHelper = {
-  asProxyService,
-  createProxyService,
-};
+const { createProxyService } = require("../dist/proxy");
+
 const {
   createRpcService,
   RpcServer,
@@ -17,5 +14,5 @@ module.exports = {
   RpcServer,
   RpcClient,
   RpcMessageType,
-  ProxyHelper,
+  createProxyService,
 };

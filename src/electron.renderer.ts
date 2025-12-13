@@ -1,4 +1,4 @@
-import { IEventEmiiter, IIpcConnection, RpcClient } from './rpc'
+import { IIpcConnection, RpcClient } from './rpc'
 
 export interface IpcContext {
   id: string | number
@@ -39,8 +39,8 @@ class IpcConnection implements IIpcConnection<IpcContext> {
 }
 
 export class Client extends RpcClient<IpcContext> {
-  constructor(private ipcRenderer: IpcRenderer, events: IEventEmiiter) {
-    super(new IpcConnection(ipcRenderer, 'rpc.electron.main'), events)
+  constructor(private ipcRenderer: IpcRenderer) {
+    super(new IpcConnection(ipcRenderer, 'rpc.electron.main'))
     ipcRenderer.send('rpc:hello')
     ipcRenderer.on('rpc:hello', () => {
       console.log(`Client get rpc:hello`)

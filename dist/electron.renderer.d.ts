@@ -1,4 +1,4 @@
-import { IEventEmiiter, RpcClient } from './rpc';
+import { RpcClient } from './rpc';
 export interface IpcContext {
     id: string | number;
 }
@@ -8,6 +8,6 @@ export interface IpcRenderer {
 }
 export declare class Client extends RpcClient<IpcContext> {
     private ipcRenderer;
-    constructor(ipcRenderer: IpcRenderer, events: IEventEmiiter);
+    constructor(ipcRenderer: IpcRenderer);
     disconnect(): void;
 }
