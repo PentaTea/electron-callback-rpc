@@ -1,12 +1,12 @@
 {
-  "name": "@ggworks/electron-rpc",
+  "name": "electron-callback-rpc",
   "version": "1.0.0",
   "description": "rpc for electron",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "demo": "webpack --config ./demo/webpack.config.renderer.js && npx electron ./demo"
+    "demo": "webpack --config ./demo/webpack.config.renderer.js && electron ./demo"
   },
   "author": "",
   "license": "ISC",
