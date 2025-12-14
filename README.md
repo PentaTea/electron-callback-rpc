@@ -1,5 +1,11 @@
 # electron-callback-rpc
 
+> **⚠️ Pre-Release Notice**
+> 
+> 当前版本号 **< 1.0.0**，项目处于早期开发阶段。
+> 本项目部分代码由 AI 辅助生成。虽然所有代码均已通过 **人工审查** 及 **单元测试 ** 验证，但仍可能存在未知的边缘情况或不稳定性。
+> 在 v1.0.0 发布之前，API 可能会随时进行 **破坏性修改 (Breaking Changes)**，在生产环境中谨慎使用并锁定具体版本。
+
 一个专为 **Electron（main ↔ renderer）** 做的轻量 RPC 库，核心只做两件事：
 
 1) **服务调用**：renderer 端用 Promise 风格调用 main 端服务方法，写起来像本地调用。  
@@ -127,6 +133,8 @@ console.log(result)
 
 我们对 `electron-callback-rpc` 与原生 Electron IPC 进行了全面的性能对比测试，涵盖吞吐量、延迟、序列化、错误处理和内存使用等多个维度。
 
+本文档中只引用前两条测试数据，你可以运行 `example` 中的 `electron` 项目得到完整数据
+
 ### 测试环境
 
 - **Platform**: arm64 Darwin 25.1.0 / Apple M4
@@ -169,7 +177,7 @@ console.log(result)
 
 | 测试场景 | RPC Package | Native IPC | 性能比率 |
 |---------|-------------|------------|----------|
-| **批量添加** (15,000 ops) | 10,488 ops/sec | 12,011 ops/sec | 0.87x |
+| **批量添加** (15,000 ops) | 5,500 ops/sec | 8,081 ops/sec | 0.68x |
 | **批量处理** (6,000 ops) | 15,476 ops/sec | 15,940 ops/sec | 0.97x |
 
 - **平均延迟**: RPC 0.12ms vs Native 0.09ms (+33.3% 开销)
