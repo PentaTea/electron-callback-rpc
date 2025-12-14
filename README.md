@@ -154,35 +154,36 @@ This document cites a subset of the data. You can run the `electron` project wit
 
 ### Results
 
-\<table\>
-\<tr\>
-\<td align="center"\>
-\<img src="benchmark-throughput-comparison.png" alt="Throughput Comparison" width="400"/\>
-<br>
-\<strong\>Throughput Comparison\</strong\>
-\</td\>
-\<td align="center"\>
-\<img src="benchmark-latency-comparison.png" alt="Latency Comparison" width="400"/\>
-<br>
-\<strong\>Latency Comparison\</strong\>
-\</td\>
-\<td align="center"\>
-\<img src="benchmark-serialization-performance.png" alt="Serialization Performance" width="400"/\>
-<br>
-\<strong\>Serialization Performance\</strong\>
-\</td\>
-\<td align="center"\>
-\<img src="benchmark-error-handling.png" alt="Error Handling Performance" width="400"/\>
-<br>
-\<strong\>Error Handling Performance\</strong\>
-\</td\>
-\<td align="center" colspan="2"\>
-\<img src="benchmark-memory-usage.png" alt="Memory Usage" width="400"/\>
-<br>
-\<strong\>Memory Usage\</strong\>
-\</td\>
-\</tr\>
-\</table\>
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="benchmark-throughput-comparison.png" alt="Throughput Comparison" width="400"/>
+      <br/>
+      <strong>Throughput Comparison</strong>
+    </td>
+    <td align="center">
+      <img src="benchmark-latency-comparison.png" alt="Latency Comparison" width="400"/>
+      <br/>
+      <strong>Latency Comparison</strong>
+    </td>
+    <td align="center">
+      <img src="benchmark-serialization-performance.png" alt="Serialization Performance" width="400"/>
+      <br/>
+      <strong>Serialization Performance</strong>
+    </td>
+    <td align="center">
+      <img src="benchmark-error-handling.png" alt="Error Handling Performance" width="400"/>
+      <br/>
+      <strong>Error Handling Performance</strong>
+    </td>
+    <td align="center" colspan="2">
+      <img src="benchmark-memory-usage.png" alt="Memory Usage" width="400"/>
+      <br/>
+      <strong>Memory Usage</strong>
+    </td>
+  </tr>
+</table>
 
 #### 🚀 Throughput (Operations/sec)
 
