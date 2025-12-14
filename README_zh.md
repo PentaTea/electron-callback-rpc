@@ -1,12 +1,12 @@
 # electron-callback-rpc
 
+- 一个轻量级 RPC 通信库，支持 `跨进程回调` 与 `复杂类型传输` 专为 **Electron (Main ↔ Renderer)** 构建。
+
 > **⚠️ Pre-Release Notice**
 > 
 > 当前版本号 **< 1.0.0**，项目处于早期开发阶段。
 > 本项目部分代码由 AI 辅助生成。虽然所有代码均已通过 **人工审查** 及 **单元测试 ** 验证，但仍可能存在未知的边缘情况或不稳定性。
 > 在 v1.0.0 发布之前，API 可能会随时进行 **破坏性修改 (Breaking Changes)**，在生产环境中谨慎使用并锁定具体版本。
-
-一个专为 **Electron (Main ↔ Renderer)** 构建的轻量级 RPC 通信库。
 
 核心特性聚焦于：
 1.  **Promise 服务调用**：Renderer 端以原生异步函数的方式调用 Main 端方法，体验如本地调用般流畅。
@@ -242,7 +242,7 @@ console.log(result)
 
 -----
 
-## ⚠️ 最佳实践与注意事项
+## 最佳实践与注意事项
 
   * **进程模型**：本库专为 Electron 真实多进程环境设计。
   * **事件订阅**：不提供 `EventEmitter` 风格的 API。若需推送事件，请在业务接口中显式设计 `subscribe(callback)` 方法。
