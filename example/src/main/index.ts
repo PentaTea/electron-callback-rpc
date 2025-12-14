@@ -1,9 +1,12 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { Server, createRpcService } from 'electron-callback-rpc'
 import { DemoService } from './demo-service'
+import { BenchmarkService } from './benchmark-service'
+import { NativeHandler } from './native-handler'
+import { BenchmarkHandler } from './benchmark-handler'
 
 function createWindow(): void {
   // Create the browser window.
@@ -53,11 +56,18 @@ app.whenReady().then(() => {
 
   // 初始化 RPC 服务器
   const rpcServer = new Server()
+  
+  // 注册演示服务（保持现有功能）
   const demoService = new DemoService()
   rpcServer.registerService('demo', createRpcService(demoService))
+  
+  // 注册基准测试服务（纯性能测试）
+  const benchmarkService = new BenchmarkService()
+  rpcServer.registerService('benchmark', createRpcService(benchmarkService))
 
-  // IPC test
-  ipcMain.on('ping', () => console.log('pong'))
+  // 初始化原生IPC处理器
+  new NativeHandler()
+  new BenchmarkHandler()
 
   createWindow()
 

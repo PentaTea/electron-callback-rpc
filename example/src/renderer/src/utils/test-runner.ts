@@ -1,10 +1,13 @@
 import { IDemoService, ITestResult, IBenchmarkResult, IStressTestResult } from '@shared/interfaces'
+import { Client } from 'electron-callback-rpc'
 
 export class TestRunner {
   public service: IDemoService
+  public client: Client
   
-  constructor(service: IDemoService) {
+  constructor(service: IDemoService, client: Client) {
     this.service = service
+    this.client = client
   }
 
   async runBasicTests(): Promise<ITestResult[]> {

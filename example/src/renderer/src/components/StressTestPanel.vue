@@ -36,30 +36,30 @@
     </div>
     
     <div v-if="result" class="stress-results">
-      <div class="result-grid">
-        <div class="result-card">
+      <div class="grid-auto">
+        <div class="card">
           <div class="result-label">Total Operations</div>
           <div class="result-value">{{ result.totalOperations }}</div>
         </div>
-        <div class="result-card">
+        <div class="card">
           <div class="result-label">Success Rate</div>
           <div class="result-value">
             {{ ((result.successCount / result.totalOperations) * 100).toFixed(1) }}%
           </div>
         </div>
-        <div class="result-card">
+        <div class="card">
           <div class="result-label">Throughput</div>
           <div class="result-value">{{ result.throughput.toFixed(2) }} ops/sec</div>
         </div>
-        <div class="result-card">
+        <div class="card">
           <div class="result-label">Avg Latency</div>
           <div class="result-value">{{ result.avgLatency.toFixed(2) }}ms</div>
         </div>
-        <div class="result-card">
+        <div class="card">
           <div class="result-label">Max Latency</div>
           <div class="result-value">{{ result.maxLatency.toFixed(2) }}ms</div>
         </div>
-        <div class="result-card">
+        <div class="card">
           <div class="result-label">Errors</div>
           <div class="result-value error">{{ result.errorCount }}</div>
         </div>
@@ -68,8 +68,8 @@
       <!-- Performance Analysis -->
       <div class="performance-analysis">
         <h4>Performance Analysis</h4>
-        <div class="analysis-grid">
-          <div class="analysis-item">
+        <div class="grid-3">
+          <div class="card">
             <div class="analysis-label">Concurrency Efficiency</div>
             <div class="analysis-value">
               {{ getConcurrencyEfficiency() }}%
@@ -78,7 +78,7 @@
               How well the system handles concurrent load
             </div>
           </div>
-          <div class="analysis-item">
+          <div class="card">
             <div class="analysis-label">Error Rate</div>
             <div class="analysis-value" :class="getErrorRateClass()">
               {{ getErrorRate() }}%
@@ -87,7 +87,7 @@
               Percentage of failed operations
             </div>
           </div>
-          <div class="analysis-item">
+          <div class="card">
             <div class="analysis-label">Latency Variance</div>
             <div class="analysis-value">
               {{ getLatencyVariance() }}ms
@@ -139,7 +139,7 @@
     <!-- Preset Configurations -->
     <div class="preset-configs">
       <h4>Preset Configurations</h4>
-      <div class="preset-buttons">
+      <div class="grid-4">
         <button @click="setPreset('light')" :disabled="running" class="preset-button light">
           Light Load
           <small>5 workers × 20 ops</small>
@@ -256,12 +256,15 @@ function getThroughputBarWidth(): number {
 .panel-header h3 {
   margin: 0 0 8px 0;
   color: #2c3e50;
+  font-size: 20px;
+  font-weight: 600;
 }
 
 .panel-header p {
   margin: 0 0 24px 0;
   color: #666;
   font-size: 14px;
+  line-height: 1.5;
 }
 
 .test-config {
@@ -273,6 +276,7 @@ function getThroughputBarWidth(): number {
   background: #f8f9fa;
   border-radius: 8px;
   border: 1px solid #e9ecef;
+  flex-wrap: wrap;
 }
 
 .config-row {
@@ -328,12 +332,6 @@ function getThroughputBarWidth(): number {
   margin-bottom: 20px;
 }
 
-.loading > div:first-child {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
 .spinner {
   width: 20px;
   height: 20px;
@@ -357,21 +355,6 @@ function getThroughputBarWidth(): number {
   margin-bottom: 32px;
 }
 
-.result-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 32px;
-}
-
-.result-card {
-  background: white;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  padding: 16px;
-  text-align: center;
-}
-
 .result-label {
   font-size: 12px;
   color: #6c757d;
@@ -384,6 +367,7 @@ function getThroughputBarWidth(): number {
   font-size: 24px;
   font-weight: 600;
   color: #2c3e50;
+  text-align: center;
 }
 
 .result-value.error {
@@ -403,20 +387,6 @@ function getThroughputBarWidth(): number {
   color: #2c3e50;
 }
 
-.analysis-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 16px;
-}
-
-.analysis-item {
-  background: white;
-  border: 1px solid #dee2e6;
-  border-radius: 6px;
-  padding: 16px;
-  text-align: center;
-}
-
 .analysis-label {
   font-size: 14px;
   color: #495057;
@@ -429,27 +399,18 @@ function getThroughputBarWidth(): number {
   font-weight: 600;
   color: #2c3e50;
   margin-bottom: 8px;
+  text-align: center;
 }
 
-.analysis-value.excellent {
-  color: #28a745;
-}
-
-.analysis-value.good {
-  color: #17a2b8;
-}
-
-.analysis-value.warning {
-  color: #ffc107;
-}
-
-.analysis-value.error {
-  color: #dc3545;
-}
+.analysis-value.excellent { color: #28a745; }
+.analysis-value.good { color: #17a2b8; }
+.analysis-value.warning { color: #ffc107; }
+.analysis-value.error { color: #dc3545; }
 
 .analysis-description {
   font-size: 12px;
   color: #6c757d;
+  text-align: center;
 }
 
 .throughput-chart {
@@ -463,10 +424,6 @@ function getThroughputBarWidth(): number {
 .throughput-chart h4 {
   margin: 0 0 16px 0;
   color: #2c3e50;
-}
-
-.chart-container {
-  position: relative;
 }
 
 .chart-bar {
@@ -499,33 +456,6 @@ function getThroughputBarWidth(): number {
   font-weight: 500;
 }
 
-.chart-reference {
-  position: relative;
-  height: 40px;
-  background: #e9ecef;
-  border-radius: 4px;
-  margin-left: 112px;
-}
-
-.ref-line {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: #6c757d;
-}
-
-.ref-line span {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 10px;
-  color: #6c757d;
-  white-space: nowrap;
-  margin-top: 4px;
-}
-
 .preset-configs {
   padding: 20px;
   background: #f8f9fa;
@@ -536,12 +466,6 @@ function getThroughputBarWidth(): number {
 .preset-configs h4 {
   margin: 0 0 16px 0;
   color: #2c3e50;
-}
-
-.preset-buttons {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 12px;
 }
 
 .preset-button {
@@ -573,27 +497,49 @@ function getThroughputBarWidth(): number {
   opacity: 0.8;
 }
 
-.preset-button.light {
-  background: #d4edda;
-  color: #155724;
-  border-color: #c3e6cb;
+.preset-button.light { background: #d4edda; color: #155724; border-color: #c3e6cb; }
+.preset-button.medium { background: #d1ecf1; color: #0c5460; border-color: #bee5eb; }
+.preset-button.heavy { background: #fff3cd; color: #856404; border-color: #ffeaa7; }
+.preset-button.extreme { background: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+
+/* 卡片样式 */
+.card {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
 }
 
-.preset-button.medium {
-  background: #d1ecf1;
-  color: #0c5460;
-  border-color: #bee5eb;
+/* 网格样式 */
+.grid-auto {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
 }
 
-.preset-button.heavy {
-  background: #fff3cd;
-  color: #856404;
-  border-color: #ffeaa7;
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
 }
 
-.preset-button.extreme {
-  background: #f8d7da;
-  color: #721c24;
-  border-color: #f5c6cb;
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+/* 响应式 */
+@media (max-width: 700px) {
+  .grid-4,
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+  
+  .grid-auto {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

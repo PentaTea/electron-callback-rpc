@@ -61,3 +61,58 @@ export interface IStressTestResult {
   maxLatency: number
   throughput: number
 }
+
+// 基准测试专用接口
+export interface IBenchmarkService {
+  // 纯开销测试
+  noop(): Promise<void>
+  echo(text: string): Promise<string>
+  echoLarge(text: string): Promise<string>
+  
+  // 计算测试
+  add(a: number, b: number): Promise<number>
+  multiply(a: number, b: number): Promise<number>
+  fibonacci(n: number): Promise<number>
+  
+  // 序列化测试
+  processSimpleObject(data: { name: string; age: number }): Promise<{ name: string; age: number }>
+  processComplexObject(data: {
+    array: number[]
+    nested: { deep: { value: string } }
+    date: Date
+    map?: Map<string, number>
+  }): Promise<any>
+  processBuffer(buffer: Uint8Array): Promise<number>
+  
+  // 批量操作
+  batchAdd(operations: Array<{ a: number; b: number }>): Promise<number[]>
+  batchProcess(items: string[]): Promise<string[]>
+  
+  // 错误处理
+  throwError(message: string): Promise<never>
+  maybeThrow(shouldThrow: boolean, message: string): Promise<string>
+  
+  // 内存测试
+  createBuffer(size: number): Promise<Uint8Array>
+  processLargeArray(size: number): Promise<number>
+  
+  // 并发测试
+  concurrentTask(taskId: number, duration: number): Promise<{ taskId: number; result: number }>
+  
+  // 性能分析
+  getMemoryUsage(): Promise<NodeJS.MemoryUsage>
+  getCpuUsage(): Promise<NodeJS.CpuUsage>
+}
+
+// 详细的基准测试结果
+export interface IDetailedBenchmarkResult extends IBenchmarkResult {
+  p50Latency: number
+  p95Latency: number
+  p99Latency: number
+  stdDeviation: number
+  memoryUsage?: {
+    before: NodeJS.MemoryUsage
+    after: NodeJS.MemoryUsage
+    peak: NodeJS.MemoryUsage
+  }
+}
