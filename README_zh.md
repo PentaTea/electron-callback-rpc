@@ -123,7 +123,7 @@ console.log(result)
 
 本库使用 exports 区分主进程（CJS）和渲染进程（ESM）。 如果你在渲染进程中遇到类型推导错误（例如 VSCode 指向了错误的 dist/main 路径），请确保你的 Renderer 端 tsconfig.json 配置了现代化的模块解析策略：
 
-```json
+```jsonc
 // tsconfig.json (渲染进程)
 {
   "compilerOptions": {

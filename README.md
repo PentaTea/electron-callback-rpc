@@ -126,7 +126,7 @@ console.log(result)
 
 This library uses `exports` to distinguish between the Main process (CJS) and the Renderer process (ESM). If you encounter type inference errors in the Renderer process (e.g., VSCode pointing to the wrong `dist/main` path), ensure your Renderer's `tsconfig.json` is configured with a modern module resolution strategy:
 
-```json
+```jsonc
 // tsconfig.json (Renderer Process)
 {
   "compilerOptions": {
