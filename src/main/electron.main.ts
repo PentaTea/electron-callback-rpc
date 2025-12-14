@@ -1,4 +1,4 @@
-import { IIpcConnection, RpcServer } from './rpc'
+import { IIpcConnection, RpcServer } from '../shared/rpc'
 import { ipcMain, IpcMainEvent, WebContents } from 'electron'
 
 export interface IpcContext {

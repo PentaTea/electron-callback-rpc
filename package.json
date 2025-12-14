@@ -2,10 +2,31 @@
   "name": "electron-callback-rpc",
   "version": "1.0.0",
   "description": "rpc for electron",
-  "main": "index.js",
+  "main": "./dist/main/index.js",
+  "types": "./dist/main/index.d.ts",
+  "exports": {
+    ".": {
+      "types": {
+        "browser": "./dist/renderer/index.d.ts", 
+        "node": "./dist/main/index.d.ts",
+        "default": "./dist/main/index.d.ts"
+      },
+      "browser": {
+        "import": "./dist/renderer/index.mjs",
+        "require": "./dist/renderer/index.js",
+        "default": "./dist/renderer/index.mjs"
+      },
+      "node": {
+        "import": "./dist/main/index.mjs",
+        "require": "./dist/main/index.js",
+        "default": "./dist/main/index.js"
+      },
+      "default": "./dist/main/index.js"
+    }
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc"
+    "build": "tsup"
   },
   "author": "",
   "license": "ISC",
@@ -18,6 +39,7 @@
     "source-map-loader": "^4.0.0",
     "typescript": "^4.7.4",
     "webpack": "^5.74.0",
-    "webpack-cli": "^4.10.0"
+    "webpack-cli": "^4.10.0",
+    "tsup": "^8.5.1"
   }
 }

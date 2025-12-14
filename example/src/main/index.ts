@@ -2,6 +2,8 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import { Server, createRpcService } from 'electron-callback-rpc'
+import { DemoService } from './demo-service'
 
 function createWindow(): void {
   // Create the browser window.
@@ -48,6 +50,11 @@ app.whenReady().then(() => {
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
+
+  // 初始化 RPC 服务器
+  const rpcServer = new Server()
+  const demoService = new DemoService()
+  rpcServer.registerService('demo', createRpcService(demoService))
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))

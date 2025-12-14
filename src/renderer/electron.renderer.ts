@@ -1,4 +1,4 @@
-import { IIpcConnection, RpcClient } from './rpc'
+import { IIpcConnection, RpcClient } from '../shared/rpc'
 
 export interface IpcContext {
   id: string | number
