@@ -1,6 +1,6 @@
 {
   "name": "electron-callback-rpc",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "rpc for electron",
   "main": "./dist/main/index.js",
   "types": "./dist/main/index.d.ts",

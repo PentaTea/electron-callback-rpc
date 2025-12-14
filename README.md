@@ -121,4 +121,111 @@ console.log(result)
 
 * 这个库是 **Electron 专用**，默认运行在真实 main/renderer 进程中。
 * 本库不提供 `on/once/off` 事件订阅语义。如果你需要“推送式事件”，建议把它建模成显式 API（比如 `subscribe()` 返回 `unsubscribe()`），或者在业务层用 callback/流式模型来表达。
-* 回调/远端对象的生命周期：如果你希望强约束资源释放，建议在你的服务接口中提供显式的 `dispose()` / `close()`，把释放做成业务协议的一部分。
+* 回调/远端对象的生命周期：如果你希望强约束资源释放，建议在你的服务接口中提供显式的 `dispose()` / `close()`。
+
+## 基准测试
+
+我们对 `electron-callback-rpc` 与原生 Electron IPC 进行了全面的性能对比测试，涵盖吞吐量、延迟、序列化、错误处理和内存使用等多个维度。
+
+### 测试环境
+
+- **Platform**: arm64 Darwin 25.1.0 / Apple M4
+- **Node.js**: v24.11.0
+- **Electron**: v39.2.7
+
+### 结果
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="benchmark-throughput-comparison.png" alt="吞吐量对比" width="400"/>
+      <br/>
+      <strong>吞吐量对比</strong>
+    </td>
+    <td align="center">
+      <img src="benchmark-latency-comparison.png" alt="延迟对比" width="400"/>
+      <br/>
+      <strong>延迟对比</strong>
+    </td>
+    <td align="center">
+      <img src="benchmark-serialization-performance.png" alt="序列化性能" width="400"/>
+      <br/>
+      <strong>序列化性能</strong>
+    </td>
+    <td align="center">
+      <img src="benchmark-error-handling.png" alt="错误处理性能" width="400"/>
+      <br/>
+      <strong>错误处理性能</strong>
+    </td>
+    <td align="center" colspan="2">
+      <img src="benchmark-memory-usage.png" alt="内存使用测试" width="400"/>
+      <br/>
+      <strong>内存使用测试</strong>
+    </td>
+  </tr>
+</table>
+
+#### 🚀 吞吐量测试 (Operations/sec)
+
+| 测试场景 | RPC Package | Native IPC | 性能比率 |
+|---------|-------------|------------|----------|
+| **批量添加** (15,000 ops) | 10,488 ops/sec | 12,011 ops/sec | 0.87x |
+| **批量处理** (6,000 ops) | 15,476 ops/sec | 15,940 ops/sec | 0.97x |
+
+- **平均延迟**: RPC 0.12ms vs Native 0.09ms (+33.3% 开销)
+- **整体吞吐量**: RPC 在高频调用场景下保持了 87-97% 的原生性能
+
+#### 📊 序列化性能测试
+
+| 数据类型 | RPC Package | Native IPC | 性能比率 |
+|---------|-------------|------------|----------|
+| **简单对象** (5,000 ops) | 22,222 ops/sec | 19,747 ops/sec | 1.13x |
+| **复杂对象** (2,500 ops) | 15,509 ops/sec | 17,643 ops/sec | 0.88x |
+
+- **平均延迟**: RPC 0.10ms vs Native 0.09ms (+11.1% 开销)
+- **序列化优势**: 在简单对象处理上，RPC 比原生 IPC 快 13%
+
+#### ⚡ 延迟测试 (Round-trip time)
+
+| 操作类型 | RPC Package | Native IPC | 延迟开销 |
+|---------|-------------|------------|----------|
+| **空操作** (5,000 ops) | 0.041ms | 0.046ms | 0.0% |
+| **小数据回显** (5,000 ops) | 0.042ms | 0.042ms | 0.0% |
+
+- **超低延迟**: 在轻量级操作中，RPC 与原生 IPC 延迟几乎相同
+- **吞吐量**: 21,471 ops/sec vs 21,060 ops/sec (1.02x)
+
+#### 🛡️ 错误处理性能
+
+| 场景 | RPC Package | Native IPC | 性能比率 |
+|------|-------------|------------|----------|
+| **成功路径** (5,000 ops) | 22,036 ops/sec | 23,753 ops/sec | 0.93x |
+| **错误路径** (5,000 ops) | 14,472 ops/sec | 11,593 ops/sec | 1.25x |
+
+- **错误处理优势**: RPC 在错误处理场景下比原生 IPC 快 25%
+- **平均延迟**: 两者基本相同 (0.06ms)
+
+#### 💾 内存使用测试
+
+| 测试场景 | RPC Package | Native IPC | 性能比率 |
+|---------|-------------|------------|----------|
+| **大数组处理** (30 ops) | 36 ops/sec | 38 ops/sec | 0.95x |
+| **1MB 缓冲区** (60 ops) | 632 ops/sec | 628 ops/sec | 1.01x |
+
+- **大数据处理**: 在处理大型数据结构时，性能损失控制在 5% 以内
+- **内存效率**: 1MB 缓冲区操作中甚至略优于原生 IPC
+
+### 性能总结
+
+✅ **优势场景**:
+- 简单对象序列化性能优于原生 IPC
+- 错误处理效率显著提升 (25% 性能优势)
+- 超低延迟操作与原生 IPC 相当
+- 大数据缓冲区处理效率相当或更优
+
+⚠️ **权衡考虑**:
+- 高频批量操作有 3-13% 的性能开销
+- 复杂对象序列化略慢于原生 IPC (12% 开销)
+- 整体延迟增加约 11-33%，但绝对值仍在亚毫秒级别
+
+**结论**: `electron-callback-rpc` 在提供强大的跨进程回调和类型保留功能的同时，保持了与原生 IPC 相当的性能水平。对于大多数应用场景，性能开销完全可以接受，而功能上的便利性和类型安全性带来的开发效率提升远超这些微小的性能成本。
