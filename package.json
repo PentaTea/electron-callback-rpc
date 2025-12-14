@@ -29,7 +29,16 @@
     "build": "tsup"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+  "type": "git",
+  "url": "git+https://github.com/PentaTea/electron-callback-rpc.git"
+  },
   "peerDependencies": {
     "electron": ">= 13.0.0"
   },
