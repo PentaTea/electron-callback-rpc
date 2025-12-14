@@ -6,72 +6,68 @@
 > 本项目部分代码由 AI 辅助生成。虽然所有代码均已通过 **人工审查** 及 **单元测试 ** 验证，但仍可能存在未知的边缘情况或不稳定性。
 > 在 v1.0.0 发布之前，API 可能会随时进行 **破坏性修改 (Breaking Changes)**，在生产环境中谨慎使用并锁定具体版本。
 
-一个专为 **Electron（main ↔ renderer）** 做的轻量 RPC 库，核心只做两件事：
+一个专为 **Electron (Main ↔ Renderer)** 构建的轻量级 RPC 通信库。
 
-1) **服务调用**：renderer 端用 Promise 风格调用 main 端服务方法，写起来像本地调用。  
-2) **跨进程回调**：函数（或带方法的对象）可以作为参数/返回值跨进程传递，并在对端被调用。
+核心特性聚焦于：
+1.  **Promise 服务调用**：Renderer 端以原生异步函数的方式调用 Main 端方法，体验如本地调用般流畅。
+2.  **跨进程回调支持**：函数（Function）与带方法的对象可作为参数或返回值跨进程传递，实现真正的双向交互。
+3.  **富类型语义保留**：支持 `Map`、`Set`、`Date`、`Error`、`BigInt`、`Buffer` 等原生类型，拒绝 IPC 通信中的“强制 JSON 化”导致的数据失真。
 
-同时，它会尽量保留常见“非 JSON 类型”的语义（比如 `Map`、`Set`、`Date`、`RegExp`、`Error`、`BigInt`、`ArrayBuffer`/`Uint8Array`/`Buffer`、`NaN`/`Infinity` 等），避免 IPC 传输过程中被迫“全变字符串/全变普通对象”。
-
-> 运行环境要求：`electron >= 13.0.0`
-
----
-
-## 为什么会有这个库（fork 的原因）
-
-这是从 `@ggworks/electron-rpc` fork 出来的。
-
-原版已经把“基于 IPC 的 service/method 调用模型”搭得很好。但在我的项目里，更常见、更重要的是：
-
-- **回调要当一等公民**：不仅传数据，还要能把函数/对象传过去，让对端在需要的时候回调，拿到返回值/错误。
-- **类型别被 JSON 化**：Electron IPC 本身就支持结构化克隆，强行 JSON 化会丢类型、也会丢性能。
-- **长时间运行更稳**：跨进程引用如果一直挂着，容易累积成泄漏风险；所以更强调引用生命周期的可控性（最佳实践是 API 里提供显式 `dispose()`，同时库内部也会尽力做自动释放）。
+> **环境要求**：`electron >= 13.0.0`
 
 ---
 
-## 提供的 API
+## 📖 背景与动机
 
-### main 进程
+本项目 Fork 自 `@ggworks/electron-rpc`。原版库建立了优秀的 IPC 方法调用模型，但在实际复杂的业务场景中，我们需要更强的灵活性：
+
+* **回调即一等公民**：不仅传输数据，更要传输能力。支持将回调函数传给主进程，以便报告进度或处理异步结果。
+* **类型高保真**：Electron IPC 原生支持结构化克隆算法（Structured Clone），我们充分利用这一特性，避免不必要的序列化损耗和类型丢失。
+* **生命周期可控**：针对跨进程引用，强调显式的资源释放（Dispose）机制，配合内部自动垃圾回收策略，最大程度降低内存泄漏风险。
+
+### 与 `@ggworks/electron-rpc` 的核心差异
+
+- **专注**：仅聚焦于 **Request/Response + Callback** 模型。
+- **精简**：移除事件订阅模型（不提供 `on/once/off` 语义，建议使用业务级回调替代）。
+- **增强**：强化跨进程对象/函数的传递能力与非标准 JSON 类型的支持。
+
+-----
+
+## 🧩 API 概览
+
+### 主进程
+
 ```ts
-const server = new Server() // 创建 RPC 服务端，负责接收 renderer 的连接并分发调用。
-let service = createRpcService(instance) // 把一个普通对象/类实例包装成 RPC 服务。
-rpc.registerService(name, service) // 注册服务
-
+const server = new Server() // 创建 RPC 服务端
+const service = createRpcService(instance) // 包装对象 / 实例
+server.registerService('namespace', service) // 注册服务
 ```
 
-### renderer 进程
+### 渲染进程
+
 ```ts
-// 创建 RPC 客户端, 需要传入 ipcRenderer 的实现。
-const client = new Client(ipcRendererLike) 
+const client = new Client(ipcRenderer) // 创建客户端
+const proxy = createProxyService(client, 'namespace') // 创建类型化代理
 
-// 创建一个带类型的服务代理，你可以直接调用
-let service = createProxyService(client, serviceName)
-service.call('123')
-service.callback(res => console.log(res))
-
+// 调用
+proxy.methodName(args)
 ```
 
 ---
 
-## 和 `@ggworks/electron-rpc` 的区别
-
-- 只聚焦 **服务调用 + 回调**。
-- **不提供事件订阅模型**（没有 `on/once/off` 这一套语义）。
-- 更强调 **跨进程传函数/对象** 和 **常见类型的语义保留**。
-
----
-
-## 安装
+## 📦 安装
 
 ```bash
 npm i electron-callback-rpc
 ```
 
----
+-----
 
-## 使用方式
+## 🚀 快速上手
 
-### 1. 定义接口
+### 1\. 定义类型接口 (Shared)
+
+建议在共享文件中定义接口，以获得完整的 TypeScript 类型提示。
 
 ```ts
 export interface IDemoService {
@@ -80,10 +76,10 @@ export interface IDemoService {
 }
 ```
 
-### 2. main 进程：实现并注册服务
+### 2\. 主进程：实现并注册
 
 ```ts
-import { Server, createRpcService } from 'electron-callback-rpc/main'
+import { Server, createRpcService } from 'electron-callback-rpc'
 
 class DemoService implements IDemoService {
   async echo(text: string) {
@@ -99,35 +95,47 @@ class DemoService implements IDemoService {
 }
 
 const server = new Server()
+// 将实例包装为 RPC 服务并注册
 server.registerService('demo', createRpcService(new DemoService()))
 ```
 
-### 3) renderer 进程：创建 client 并调用
+### 3\. 渲染进程：创建代理并调用
 
 ```ts
-import { Client, createProxyService } from 'electron-callback-rpc/renderer'
+import { Client, createProxyService } from 'electron-callback-rpc'
 
+// 初始化客户端 (需传入 ipcRenderer)
 const client = new Client(window.ipcRenderer)
 const demo = createProxyService<IDemoService>(client, 'demo')
 
-// 1) 普通调用
+// 场景 1: 普通异步调用
 const echoed = await demo.echo('hello')
 console.log(echoed)
 
-// 2) 回调调用
+// 场景 2: 带回调的调用
 const result = await demo.run('build', (percent) => {
-  console.log('progress:', percent)
+  console.log('Build progress:', percent)
 })
 console.log(result)
 ```
 
----
+### ⚠️ TypeScript 配置注意事项
 
-## 一些说明
+本库使用 exports 区分主进程（CJS）和渲染进程（ESM）。 如果你在渲染进程中遇到类型推导错误（例如 VSCode 指向了错误的 dist/main 路径），请确保你的 Renderer 端 tsconfig.json 配置了现代化的模块解析策略：
 
-* 这个库是 **Electron 专用**，默认运行在真实 main/renderer 进程中。
-* 本库不提供 `on/once/off` 事件订阅语义。如果你需要“推送式事件”，建议把它建模成显式 API（比如 `subscribe()` 返回 `unsubscribe()`），或者在业务层用 callback/流式模型来表达。
-* 回调/远端对象的生命周期：如果你希望强约束资源释放，建议在你的服务接口中提供显式的 `dispose()` / `close()`。
+```json
+// tsconfig.json (渲染进程)
+{
+  "compilerOptions": {
+    // 适配 Vite/Webpack 等现代构建工具 (需 TS 5.0+)
+    "moduleResolution": "bundler",
+    // 显式指定浏览器环境，强制命中 exports 中的 "browser" 条件
+    "customConditions": ["browser"] 
+  }
+}
+```
+
+-----
 
 ## 基准测试
 
@@ -223,17 +231,23 @@ console.log(result)
 - **大数据处理**: 在处理大型数据结构时，性能损失控制在 5% 以内
 - **内存效率**: 1MB 缓冲区操作中甚至略优于原生 IPC
 
-### 性能总结
+### 核心结论
 
-✅ **优势场景**:
-- 简单对象序列化性能优于原生 IPC
-- 错误处理效率显著提升 (25% 性能优势)
-- 超低延迟操作与原生 IPC 相当
-- 大数据缓冲区处理效率相当或更优
+1.  **极低延迟**：在空操作和小数据回显场景下，本库的延迟与原生 IPC 几乎持平（\~0.04ms），绝对开销可忽略不计。
+2.  **错误处理更优**：得益于优化的异常传播机制，错误路径处理性能比原生快 **25%**。
+3.  **序列化表现**：简单对象传输比原生快 **13%**；复杂对象仅有约 12% 的性能损耗。
+4.  **吞吐量**：在高频调用场景下，仍能保持原生 IPC **87%-97%** 的吞吐量。
 
-⚠️ **权衡考虑**:
-- 高频批量操作有 3-13% 的性能开销
-- 复杂对象序列化略慢于原生 IPC (12% 开销)
-- 整体延迟增加约 11-33%，但绝对值仍在亚毫秒级别
+**总结**：`electron-callback-rpc` 在提供强大的类型安全和回调能力的同时，不仅未引入显著的性能瓶颈，反而在部分场景（如错误处理、简单对象）下优于原生实现。
 
-**结论**: `electron-callback-rpc` 在提供强大的跨进程回调和类型保留功能的同时，保持了与原生 IPC 相当的性能水平。对于大多数应用场景，性能开销完全可以接受，而功能上的便利性和类型安全性带来的开发效率提升远超这些微小的性能成本。
+-----
+
+## ⚠️ 最佳实践与注意事项
+
+  * **进程模型**：本库专为 Electron 真实多进程环境设计。
+  * **事件订阅**：不提供 `EventEmitter` 风格的 API。若需推送事件，请在业务接口中显式设计 `subscribe(callback)` 方法。
+  * **资源管理**：虽然库内部包含垃圾回收机制，但对于长生命周期的回调或对象，建议在接口中显式提供 `dispose()` 或 `unsubscribe()` 方法以确保万无一失。
+
+## License
+
+MIT
