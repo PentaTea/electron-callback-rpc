@@ -1,5 +1,5 @@
 import { IDemoService, ITestResult, IBenchmarkResult, IStressTestResult } from '@shared/interfaces'
-import { Client } from 'electron-callback-rpc'
+import { Client } from '@mukea/electron-callback-rpc'
 
 export class TestRunner {
   public service: IDemoService

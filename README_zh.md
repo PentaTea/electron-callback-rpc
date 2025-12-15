@@ -58,7 +58,7 @@ proxy.methodName(args)
 ## 📦 安装
 
 ```bash
-npm i electron-callback-rpc
+npm i @mukea/electron-callback-rpc
 ```
 
 -----
@@ -79,7 +79,7 @@ export interface IDemoService {
 ### 2\. 主进程：实现并注册
 
 ```ts
-import { Server, createRpcService } from 'electron-callback-rpc'
+import { Server, createRpcService } from '@mukea/electron-callback-rpc'
 
 class DemoService implements IDemoService {
   async echo(text: string) {
@@ -102,7 +102,7 @@ server.registerService('demo', createRpcService(new DemoService()))
 ### 3\. 渲染进程：创建代理并调用
 
 ```ts
-import { Client, createProxyService } from 'electron-callback-rpc'
+import { Client, createProxyService } from '@mukea/electron-callback-rpc'
 
 // 初始化客户端 (需传入 ipcRenderer)
 const client = new Client(window.ipcRenderer)

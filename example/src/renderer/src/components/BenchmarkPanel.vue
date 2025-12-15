@@ -177,7 +177,7 @@ import { ref, computed } from 'vue'
 import { TestRunner } from '../utils/test-runner'
 import { BenchmarkRunner } from '../utils/benchmark-runner'
 import { IDetailedBenchmarkResult } from '@shared/interfaces'
-import { createProxyService } from 'electron-callback-rpc'
+import { createProxyService } from '@mukea/electron-callback-rpc'
 
 interface Props {
   testRunner: TestRunner

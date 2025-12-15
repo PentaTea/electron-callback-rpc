@@ -1,5 +1,5 @@
 {
-  "name": "electron-callback-rpc",
+  "name": "@mukea/electron-callback-rpc",
   "version": "0.1.3",
   "description": "rpc for electron",
   "main": "./dist/main/index.js",
@@ -37,7 +37,7 @@
   ],
   "repository": {
   "type": "git",
-  "url": "git+https://github.com/PentaTea/electron-callback-rpc.git"
+  "url": "git+https://github.com/mukea-org/electron-callback-rpc.git"
   },
   "peerDependencies": {
     "electron": ">= 13.0.0"

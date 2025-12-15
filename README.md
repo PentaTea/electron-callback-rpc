@@ -61,7 +61,7 @@ proxy.methodName(args)
 ## 📦 Installation
 
 ```bash
-npm i electron-callback-rpc
+npm i @mukea/electron-callback-rpc
 ```
 
 -----
@@ -82,7 +82,7 @@ export interface IDemoService {
 ### 2\. Main Process: Implement and Register
 
 ```ts
-import { Server, createRpcService } from 'electron-callback-rpc'
+import { Server, createRpcService } from '@mukea/electron-callback-rpc'
 
 class DemoService implements IDemoService {
   async echo(text: string) {
@@ -105,7 +105,7 @@ server.registerService('demo', createRpcService(new DemoService()))
 ### 3\. Renderer Process: Create Proxy and Call
 
 ```ts
-import { Client, createProxyService } from 'electron-callback-rpc'
+import { Client, createProxyService } from '@mukea/electron-callback-rpc'
 
 // Initialize client (requires ipcRenderer)
 const client = new Client(window.ipcRenderer)

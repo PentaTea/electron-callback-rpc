@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { Client, createProxyService } from 'electron-callback-rpc'
+import { Client, createProxyService } from '@mukea/electron-callback-rpc'
 import { IDemoService } from '@shared/interfaces'
 import { TestRunner } from './utils/test-runner'
 import DemoPanel from './components/DemoPanel.vue'
