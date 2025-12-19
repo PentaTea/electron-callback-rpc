@@ -12,6 +12,11 @@ export class DemoService implements IDemoService {
     return a + b
   }
 
+
+  async basicCallback(echoCallback: (content:string) => void): Promise<void> {
+    echoCallback('hello')
+  }
+
   async processWithCallback(
     data: string,
     onProgress: (percent: number, message: string) => void

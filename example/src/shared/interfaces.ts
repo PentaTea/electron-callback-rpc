@@ -3,7 +3,8 @@ export interface IDemoService {
   // 基础功能测试
   echo(text: string): Promise<string>
   add(a: number, b: number): Promise<number>
-  
+  basicCallback(echoCallback: (content: string) => void): void;
+
   // 回调功能测试
   processWithCallback(
     data: string, 
