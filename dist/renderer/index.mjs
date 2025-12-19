@@ -518,12 +518,28 @@ var IpcConnection = class {
     this.ipcRenderer.send("rpc:message", ...args);
   }
   on(listener) {
-    this.ipcRenderer.on("rpc:message", (event, ...args) => {
+    this.dispose();
+    this.messageHandler = (event, ...args) => {
       listener(...args);
-    });
+    };
+    this.ipcRenderer.on("rpc:message", this.messageHandler);
+  }
+  /**
+   * [新增] 本地资源清理
+   * 移除 ipcRenderer 上的监听器，防止 HMR 导致的重复监听
+   */
+  dispose() {
+    if (this.messageHandler) {
+      this.ipcRenderer.removeListener("rpc:message", this.messageHandler);
+      this.messageHandler = void 0;
+    }
   }
   disconnect() {
-    this.ipcRenderer.send("rpc:disconnect");
+    try {
+      this.ipcRenderer.send("rpc:disconnect");
+    } catch (e) {
+    }
+    this.dispose();
   }
 };
 var Client = class extends RpcClient {
@@ -531,9 +547,11 @@ var Client = class extends RpcClient {
     super(new IpcConnection(ipcRenderer, "rpc.electron.main"));
     this.ipcRenderer = ipcRenderer;
     ipcRenderer.send("rpc:hello");
-    ipcRenderer.on("rpc:hello", () => {
+    const helloHandler = () => {
       console.log(`Client get rpc:hello`);
-    });
+      ipcRenderer.removeListener("rpc:hello", helloHandler);
+    };
+    ipcRenderer.on("rpc:hello", helloHandler);
   }
   disconnect() {
     this.connection.disconnect();

@@ -1,5 +1,5 @@
 /// <reference lib="es2021.weakref" />
-declare type EventCB = (...data: any) => void;
+type EventCB = (...data: any) => void;
 declare const RPC_PROXY_SYMBOL: unique symbol;
 declare const enum RpcMessageType {
     Promise = 100,
@@ -62,9 +62,9 @@ interface IMarshalledCircular {
     __rpc_type__: 'Circular';
     __rpc_ref_id__: number;
 }
-declare type AnyFunction = (...args: any[]) => any;
-declare type Unpacked<T> = T extends Promise<infer U> ? U : T;
-declare type Promisified<T> = T extends AnyFunction ? (...args: Parameters<T>) => Promise<Unpacked<ReturnType<T>>> : T extends object ? {
+type AnyFunction = (...args: any[]) => any;
+type Unpacked<T> = T extends Promise<infer U> ? U : T;
+type Promisified<T> = T extends AnyFunction ? (...args: Parameters<T>) => Promise<Unpacked<ReturnType<T>>> : T extends object ? {
     [K in keyof T]: Promisified<T[K]>;
 } : T;
 declare function isPromise(obj: any): boolean;
@@ -159,6 +159,7 @@ interface IpcContext {
     id: string | number;
 }
 declare class Server extends RpcServer<IpcContext> {
+    private connectionsMap;
     constructor(id?: string);
 }
 
