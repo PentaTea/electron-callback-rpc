@@ -19,18 +19,18 @@ onMounted(async () => {
   try {
     // 创建RPC客户端
     client.value = new Client(window.api.ipcRenderer)
-    
+
     // 等待连接建立
     await new Promise(resolve => setTimeout(resolve, 1000))
-    
+
     // 创建服务代理
     service.value = createProxyService<IDemoService>(client.value, 'demo')
-    
+
     // 创建测试运行器
     if (service.value && client.value) {
       testRunner.value = new TestRunner(service.value, client.value)
     }
-    
+
     connectionStatus.value = 'connected'
   } catch (error) {
     console.error('Failed to initialize RPC:', error)
@@ -54,19 +54,15 @@ const tabs = [
         <h1>🚀 Electron Callback RPC Test Suite</h1>
         <div class="connection-status" :class="connectionStatus">
           <span class="status-dot"></span>
-          {{ connectionStatus === 'connected' ? 'Connected' : 
-             connectionStatus === 'connecting' ? 'Connecting...' : 'Connection Error' }}
+          {{ connectionStatus === 'connected' ? 'Connected' :
+            connectionStatus === 'connecting' ? 'Connecting...' : 'Connection Error' }}
         </div>
       </div>
     </header>
 
     <nav class="tab-nav">
-      <button
-        v-for="tab in tabs"
-        :key="tab.id"
-        @click="activeTab = tab.id"
-        :class="['tab-button', { active: activeTab === tab.id }]"
-      >
+      <button v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id"
+        :class="['tab-button', { active: activeTab === tab.id }]">
         <span class="tab-icon">{{ tab.icon }}</span>
         {{ tab.label }}
       </button>
@@ -75,34 +71,20 @@ const tabs = [
     <main class="app-main">
       <div v-if="connectionStatus !== 'connected'" class="loading-state">
         <div class="spinner"></div>
-        <p>{{ connectionStatus === 'connecting' ? 'Initializing RPC connection...' : 'Failed to connect to RPC service' }}</p>
+        <p>{{ connectionStatus === 'connecting' ? 'Initializing RPC connection...' : 'Failed to connect to RPC service'
+          }}</p>
       </div>
 
       <div v-else class="content">
-        <DemoPanel 
-          v-if="activeTab === 'demo' && service" 
-          :service="service" 
-        />
-        
-        <TestPanel 
-          v-if="activeTab === 'basic' && testRunner"
-          :testRunner="testRunner"
-        />
-        
-        <CallbackTestPanel 
-          v-if="activeTab === 'callback' && testRunner"
-          :testRunner="testRunner"
-        />
-        
-        <BenchmarkPanel 
-          v-if="activeTab === 'benchmark' && testRunner"
-          :testRunner="testRunner"
-        />
-        
-        <StressTestPanel 
-          v-if="activeTab === 'stress' && testRunner"
-          :testRunner="testRunner"
-        />
+        <DemoPanel v-if="activeTab === 'demo' && service" :service="service" />
+
+        <TestPanel v-if="activeTab === 'basic' && testRunner" :testRunner="testRunner" />
+
+        <CallbackTestPanel v-if="activeTab === 'callback' && testRunner" :testRunner="testRunner" />
+
+        <BenchmarkPanel v-if="activeTab === 'benchmark' && testRunner" :testRunner="testRunner" />
+
+        <StressTestPanel v-if="activeTab === 'stress' && testRunner" :testRunner="testRunner" />
       </div>
     </main>
   </div>
@@ -115,7 +97,9 @@ const tabs = [
   box-sizing: border-box;
 }
 
-html, body, #app {
+html,
+body,
+#app {
   height: 100%;
 }
 
@@ -141,7 +125,7 @@ body {
   height: 100vh;
   display: grid;
   grid-template-rows: auto auto 1fr;
-  grid-template-areas: 
+  grid-template-areas:
     "header"
     "tabs"
     "main";
@@ -277,8 +261,13 @@ body {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .content {
@@ -299,7 +288,7 @@ body {
 }
 
 /* 重置所有面板的布局 */
-.content > * {
+.content>* {
   width: 100%;
   box-sizing: border-box;
 }
@@ -331,12 +320,13 @@ body {
 
 /* 响应式网格 */
 @container (max-width: 700px) {
+
   .content :deep(.grid-4),
   .content :deep(.grid-3),
   .content :deep(.grid-2) {
     grid-template-columns: 1fr;
   }
-  
+
   .content :deep(.grid-auto) {
     grid-template-columns: 1fr;
   }
@@ -431,29 +421,29 @@ body {
   .app-header {
     padding: 12px;
   }
-  
+
   .header-content {
     flex-direction: column;
     gap: 12px;
     align-items: flex-start;
   }
-  
+
   .app-header h1 {
     font-size: 20px;
   }
-  
+
   .tab-nav {
     justify-content: flex-start;
   }
-  
+
   .app-main {
     padding: 12px;
   }
-  
+
   .content {
     max-width: none;
   }
-  
+
   .tab-button {
     padding: 10px 12px;
     font-size: 13px;

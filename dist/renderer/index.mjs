@@ -519,19 +519,19 @@ var IpcConnection = class {
   }
   on(listener) {
     this.dispose();
-    this.messageHandler = (event, ...args) => {
+    this.currentHandler = (event, ...args) => {
       listener(...args);
     };
-    this.ipcRenderer.on("rpc:message", this.messageHandler);
+    this.ipcRenderer.on("rpc:message", this.currentHandler);
   }
   /**
-   * [新增] 本地资源清理
-   * 移除 ipcRenderer 上的监听器，防止 HMR 导致的重复监听
+   * 本地资源清理
+   * 使用 removeListener 清理监听器
    */
   dispose() {
-    if (this.messageHandler) {
-      this.ipcRenderer.removeListener("rpc:message", this.messageHandler);
-      this.messageHandler = void 0;
+    if (this.currentHandler) {
+      this.ipcRenderer.removeListener("rpc:message", this.currentHandler);
+      this.currentHandler = void 0;
     }
   }
   disconnect() {
@@ -547,13 +547,20 @@ var Client = class extends RpcClient {
     super(new IpcConnection(ipcRenderer, "rpc.electron.main"));
     this.ipcRenderer = ipcRenderer;
     ipcRenderer.send("rpc:hello");
-    const helloHandler = () => {
+    this.helloHandler = () => {
       console.log(`Client get rpc:hello`);
-      ipcRenderer.removeListener("rpc:hello", helloHandler);
+      this.cleanupHelloHandler();
     };
-    ipcRenderer.on("rpc:hello", helloHandler);
+    ipcRenderer.on("rpc:hello", this.helloHandler);
+  }
+  cleanupHelloHandler() {
+    if (this.helloHandler) {
+      this.ipcRenderer.removeListener("rpc:hello", this.helloHandler);
+      this.helloHandler = void 0;
+    }
   }
   disconnect() {
+    this.cleanupHelloHandler();
     this.connection.disconnect();
   }
 };

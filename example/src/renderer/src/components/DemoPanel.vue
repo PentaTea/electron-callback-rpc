@@ -471,13 +471,22 @@ input:focus {
 }
 
 /* Complex & Error */
+
+.complex-result {
+  margin-top: 16px;
+  border: 1px solid #e1e4e8;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
 .complex-result pre {
-  margin: 12px 0 0 0;
+  margin: 0;
   background: #f6f8fa;
   padding: 12px;
-  border-radius: 6px;
   font-size: 12px;
   overflow-x: auto;
+  font-family: 'SFMono-Regular', Consolas, monospace;
+  color: #24292e;
 }
 
 .error-result {

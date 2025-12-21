@@ -7,7 +7,7 @@
   "exports": {
     ".": {
       "types": {
-        "browser": "./dist/renderer/index.d.ts", 
+        "browser": "./dist/renderer/index.d.ts",
         "node": "./dist/main/index.d.ts",
         "default": "./dist/main/index.d.ts"
       },
@@ -36,19 +36,20 @@
     "LICENSE"
   ],
   "repository": {
-  "type": "git",
-  "url": "git+https://github.com/mukea-org/electron-callback-rpc.git"
+    "type": "git",
+    "url": "git+https://github.com/mukea-org/electron-callback-rpc.git"
   },
   "peerDependencies": {
     "electron": ">= 13.0.0"
   },
   "devDependencies": {
+    "@types/node": "^25.0.3",
     "electron": "^17.4.11",
     "eventemitter3": "^4.0.7",
     "source-map-loader": "^4.0.0",
+    "tsup": "^8.5.1",
     "typescript": "^4.7.4",
     "webpack": "^5.74.0",
-    "webpack-cli": "^4.10.0",
-    "tsup": "^8.5.1"
+    "webpack-cli": "^4.10.0"
   }
 }

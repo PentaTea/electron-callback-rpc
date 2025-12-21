@@ -11,7 +11,8 @@
       "module": "commonjs",
       "outDir": "./dist",
       "strict": true,
-      "esModuleInterop": true
+      "esModuleInterop": true,
+      "types": ["node"]
     },
     "exclude": ["dist", "example"]
   }

@@ -1,4 +1,3 @@
-// src\renderer\electron.renderer.ts
 import { IIpcConnection, RpcClient } from "../shared/rpc";
 
 export interface IpcContext {
@@ -9,17 +8,21 @@ const createContext = (id: string): IpcContext => {
   return { id };
 };
 
-// 扩展接口，必须包含 removeListener 以便清理
 export interface IpcRenderer {
   send: (channel: string, data?: any) => void;
-  on: (channel: string, listener: (event: any, ...args: any[]) => void) => void;
-  removeListener: (channel: string, listener: (...args: any[]) => void) => void;
+  on: (
+    channel: string,
+    listener: (event: any, ...args: any[]) => void,
+  ) => void;
+  removeListener: (
+    channel: string,
+    listener: (event: any, ...args: any[]) => void,
+  ) => void;
 }
 
 class IpcConnection implements IIpcConnection<IpcContext> {
   private remoteCtx: IpcContext;
-  // 保存监听器引用，用于 removeListener
-  private messageHandler?: (event: any, ...args: any[]) => void;
+  private currentHandler?: (event: any, ...args: any[]) => void;
 
   constructor(private ipcRenderer: IpcRenderer, remoteId: string) {
     this.remoteCtx = createContext(remoteId);
@@ -34,27 +37,26 @@ class IpcConnection implements IIpcConnection<IpcContext> {
   }
 
   on(listener: (...args: any[]) => void): void {
-    // 防御性清理：如果之前绑定过，先移除
+    // 防御性清理：如果之前绑定过，先清理
     this.dispose();
 
-    // 创建新的 handler 包装器
-    this.messageHandler = (event: any, ...args: any[]) => {
-      // 这里的 event 是 Electron 的 event 对象，RPC 层不需要
+    // 创建处理函数，剥离 event 对象
+    this.currentHandler = (event: any, ...args: any[]) => {
       listener(...args);
     };
 
     // 绑定到 ipcRenderer
-    this.ipcRenderer.on("rpc:message", this.messageHandler);
+    this.ipcRenderer.on("rpc:message", this.currentHandler);
   }
 
   /**
-   * [新增] 本地资源清理
-   * 移除 ipcRenderer 上的监听器，防止 HMR 导致的重复监听
+   * 本地资源清理
+   * 使用 removeListener 清理监听器
    */
   dispose(): void {
-    if (this.messageHandler) {
-      this.ipcRenderer.removeListener("rpc:message", this.messageHandler);
-      this.messageHandler = undefined;
+    if (this.currentHandler) {
+      this.ipcRenderer.removeListener("rpc:message", this.currentHandler);
+      this.currentHandler = undefined;
     }
   }
 
@@ -72,23 +74,36 @@ class IpcConnection implements IIpcConnection<IpcContext> {
 }
 
 export class Client extends RpcClient<IpcContext> {
+  private helloHandler?: (event: any, ...args: any[]) => void;
+
   constructor(private ipcRenderer: IpcRenderer) {
     super(new IpcConnection(ipcRenderer, "rpc.electron.main"));
 
     // 发送握手请求
     ipcRenderer.send("rpc:hello");
 
-    // 处理握手回执 (使用具名函数以便移除)
-    const helloHandler = () => {
+    // 创建 hello 处理函数
+    this.helloHandler = () => {
       console.log(`Client get rpc:hello`);
-      // 收到一次后立即移除，保持干净
-      ipcRenderer.removeListener("rpc:hello", helloHandler);
+      // 收到一次后立即清理
+      this.cleanupHelloHandler();
     };
 
-    ipcRenderer.on("rpc:hello", helloHandler);
+    // 绑定监听
+    ipcRenderer.on("rpc:hello", this.helloHandler);
+  }
+
+  private cleanupHelloHandler(): void {
+    if (this.helloHandler) {
+      this.ipcRenderer.removeListener("rpc:hello", this.helloHandler);
+      this.helloHandler = undefined;
+    }
   }
 
   public disconnect() {
+    // 清理 hello 监听器
+    this.cleanupHelloHandler();
+    // 断开连接
     this.connection.disconnect();
   }
 }
