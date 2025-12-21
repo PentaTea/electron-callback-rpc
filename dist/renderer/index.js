@@ -546,12 +546,28 @@ var IpcConnection = class {
     this.ipcRenderer.send("rpc:message", ...args);
   }
   on(listener) {
-    this.ipcRenderer.on("rpc:message", (event, ...args) => {
+    this.dispose();
+    this.currentHandler = (event, ...args) => {
       listener(...args);
-    });
+    };
+    this.ipcRenderer.on("rpc:message", this.currentHandler);
+  }
+  /**
+   * 本地资源清理
+   * 使用 removeListener 清理监听器
+   */
+  dispose() {
+    if (this.currentHandler) {
+      this.ipcRenderer.removeListener("rpc:message", this.currentHandler);
+      this.currentHandler = void 0;
+    }
   }
   disconnect() {
-    this.ipcRenderer.send("rpc:disconnect");
+    try {
+      this.ipcRenderer.send("rpc:disconnect");
+    } catch (e) {
+    }
+    this.dispose();
   }
 };
 var Client = class extends RpcClient {
@@ -559,11 +575,20 @@ var Client = class extends RpcClient {
     super(new IpcConnection(ipcRenderer, "rpc.electron.main"));
     this.ipcRenderer = ipcRenderer;
     ipcRenderer.send("rpc:hello");
-    ipcRenderer.on("rpc:hello", () => {
+    this.helloHandler = () => {
       console.log(`Client get rpc:hello`);
-    });
+      this.cleanupHelloHandler();
+    };
+    ipcRenderer.on("rpc:hello", this.helloHandler);
+  }
+  cleanupHelloHandler() {
+    if (this.helloHandler) {
+      this.ipcRenderer.removeListener("rpc:hello", this.helloHandler);
+      this.helloHandler = void 0;
+    }
   }
   disconnect() {
+    this.cleanupHelloHandler();
     this.connection.disconnect();
   }
 };

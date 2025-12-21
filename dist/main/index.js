@@ -714,37 +714,82 @@ var IpcConnection = class {
     return this.remoteCtx;
   }
   send(...args) {
-    this.sender.send("rpc:message", ...args);
+    if (!this.sender.isDestroyed()) {
+      this.sender.send("rpc:message", ...args);
+    }
   }
   on(listener) {
     this.listener = listener;
     import_electron.ipcMain.on("rpc:message", this.onRpcMessage);
   }
+  /**
+   * [新增] 主动销毁资源
+   * 必须显式调用 ipcMain.off，否则 Electron 主进程会一直持有引用导致泄漏，
+   * 且旧的监听器会继续响应新的消息。
+   */
+  dispose() {
+    if (this.onRpcMessage) {
+      import_electron.ipcMain.off("rpc:message", this.onRpcMessage);
+    }
+    if (this.disconnectHandler) {
+      import_electron.ipcMain.off("rpc:disconnect", this.disconnectHandler);
+      this.disconnectHandler = void 0;
+    }
+    if (this.destroyedHandler && !this.sender.isDestroyed()) {
+      this.sender.off("destroyed", this.destroyedHandler);
+      this.destroyedHandler = void 0;
+    }
+    this.listener = void 0;
+  }
   disconnect() {
-    this.sender.send("rpc:disconnect");
+    try {
+      if (!this.sender.isDestroyed()) {
+        this.sender.send("rpc:disconnect");
+      }
+    } catch (error) {
+    }
+    this.dispose();
   }
   onDisconnect(cb) {
-    import_electron.ipcMain.on("rpc:disconnect", (event, ...args) => {
-      console.log(`rpc:disconnect recieved`);
+    this.disconnectHandler = (event) => {
       if (event.sender.id === this.remoteCtx.id) {
-        import_electron.ipcMain.off("rpc:message", this.onRpcMessage);
-        cb();
+        cleanup();
       }
-    });
-    this.sender.on("destroyed", () => {
-      import_electron.ipcMain.off("rpc:message", this.onRpcMessage);
+    };
+    this.destroyedHandler = () => {
+      cleanup();
+    };
+    const cleanup = () => {
+      this.dispose();
       cb();
-    });
+    };
+    import_electron.ipcMain.on("rpc:disconnect", this.disconnectHandler);
+    this.sender.on("destroyed", this.destroyedHandler);
   }
 };
 var Server = class extends RpcServer {
   constructor(id = "rpc.electron.main") {
     super({ id });
+    // [新增] 维护 WebContents ID -> 连接实例的映射，用于去重
+    this.connectionsMap = /* @__PURE__ */ new Map();
     import_electron.ipcMain.on("rpc:hello", (event) => {
+      const senderId = event.sender.id;
+      if (this.connectionsMap.has(senderId)) {
+        const oldConnection = this.connectionsMap.get(senderId);
+        oldConnection.dispose();
+        super.onDisconnect(oldConnection);
+        this.connectionsMap.delete(senderId);
+      }
       const connection = new IpcConnection(event.sender);
+      this.connectionsMap.set(senderId, connection);
       super.addConnection(connection);
-      event.sender.send("rpc:hello");
+      if (!event.sender.isDestroyed()) {
+        event.sender.send("rpc:hello");
+      }
       connection.onDisconnect(() => {
+        if (this.connectionsMap.get(senderId) === connection) {
+          this.connectionsMap.delete(senderId);
+        }
         super.onDisconnect(connection);
       });
     });

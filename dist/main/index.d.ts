@@ -159,6 +159,7 @@ interface IpcContext {
     id: string | number;
 }
 declare class Server extends RpcServer<IpcContext> {
+    private connectionsMap;
     constructor(id?: string);
 }
 

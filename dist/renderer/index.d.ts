@@ -39,11 +39,14 @@ interface IpcContext {
 }
 interface IpcRenderer {
     send: (channel: string, data?: any) => void;
-    on: (channel: string, listener: (ctx: any, ...args: any[]) => void) => void;
+    on: (channel: string, listener: (event: any, ...args: any[]) => void) => void;
+    removeListener: (channel: string, listener: (event: any, ...args: any[]) => void) => void;
 }
 declare class Client extends RpcClient<IpcContext> {
     private ipcRenderer;
+    private helloHandler?;
     constructor(ipcRenderer: IpcRenderer);
+    private cleanupHelloHandler;
     disconnect(): void;
 }
 
